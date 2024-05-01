@@ -55,6 +55,7 @@ jobs:
           #platforms: linux/amd64
           tags: |
             ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.release_version }}
+            ghcr.io/turbot/guardrails-agent-kubernetes:latest
           build-args: |
             OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
             KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}
