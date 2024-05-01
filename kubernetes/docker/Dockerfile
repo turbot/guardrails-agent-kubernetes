@@ -1,4 +1,4 @@
-# Use Ubuntu 24.04 LTS (Jammy Jellyfish) as the base image
+# Use Ubuntu 24.04 LTS (Noble Numbat) as the base image
 FROM ubuntu:24.04
 
 ARG \
