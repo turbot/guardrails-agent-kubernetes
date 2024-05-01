@@ -51,9 +51,9 @@ jobs:
         with:
           context: ./kubernetes/docker
           push: true
-          platforms: linux/arm64,linux/amd64
+          # platforms: linux/arm64,linux/amd64
+          platforms: linux/amd64
           tags: |
-            ghcr.io/turbot/guardrails-agent-kubernetes:latest
             ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.release_version }}
           build-args: |
             OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
