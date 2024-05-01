@@ -1,0 +1,60 @@
+name: Docker Image - Build and Release
+
+on:
+  workflow_dispatch: 
+    inputs:
+      release_version:
+        description: "Release version"
+        required: true
+        default: 0.0.\invalid
+      
+      osquery_version:
+        description: "OS Query version"
+        required: true
+        default: 5.12.1
+
+      kubectl_version:
+        description: "Kubectl version"
+        required: true
+        default: 1.30.0
+
+jobs:
+  build_and_release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Versions manifest
+        run: |
+          echo "OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}"
+          echo "KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}"
+          echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}"
+    
+      - name: Checkout Pipes repository
+        uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_ACCESS_TOKEN }}    
+
+      - name: Build and push GitHub Container Registry
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./kubernetes/docker
+          push: true
+          platforms: linux/arm64,linux/amd64
+          tags: |
+            ghcr.io/turbot/guardrails-agent-kubernetes:latest
+            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.release_version }}
+          build-args: |
+            OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
+            KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}

@@ -1,1 +1,1 @@
-# guardrails-osquery-agent
+# guardrails-agent-kubernetes
