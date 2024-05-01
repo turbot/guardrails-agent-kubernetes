@@ -1,0 +1,21 @@
+# Ignore system and IDE files
+*.DS_Store
+*.idea/
+.vscode/
+
+# Ignore Docker artifacts
+Dockerfile.*  # Ignore specific Dockerfile variants like Dockerfile.dev
+.dockerignore
+.docker/       # Ignore Docker metadata
+
+# Ignore build artifacts
+build/
+dist/
+*.log
+
+# Ignore environment-specific configuration files
+.env
+.env.*
+
+# Ignore sensitive or environment-specific files
+secrets.env
