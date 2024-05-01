@@ -7,9 +7,6 @@ ARG \
   AGENT_VERSION \
   TARGETARCH
 
-# Download the osquery extension tarball from the GitHub release
-ADD https://github.com/turbot/steampipe-plugin-mongodbatlas/releases/download/v${AGENT_VERSION}/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz /tmp/
-
 # Copy the start script from the build context to the container
 COPY ./start-script.sh /usr/local/bin/start-script.sh
 
@@ -20,8 +17,8 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   # Download the osquery package using the build argument
   wget https://pkg.osquery.io/deb/osquery_${OSQUERY_VERSION}-1.linux_${TARGETARCH}.deb -O /tmp/osquery.deb && \
-  # Install the osquery package and remove the deb file
-  dpkg -i /tmp/osquery.deb && rm /tmp/osquery.deb && \
+  # Install the osquery package
+  dpkg -i /tmp/osquery.deb && \
   # Download the specific version of kubectl
   curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" && \
   # Install kubectl with appropriate permissions
@@ -30,6 +27,8 @@ RUN \
   rm kubectl && \
   # Create the directory for the osquery extensions
   mkdir -p /usr/lib/osquery/extensions/ && \
+  # Download the osquery extension tarball from the GitHub release
+  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-mongodbatlas/releases/download/v${AGENT_VERSION}/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz && \
   # Extract the osquery extension tarball
   tar -xzf /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz -C /tmp && \
   # Move the extension to the extensions directory
