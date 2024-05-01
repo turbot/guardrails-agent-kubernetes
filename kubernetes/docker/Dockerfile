@@ -1,24 +1,17 @@
-# FROM golang:1.22-bullseye as builder
-
-# ENV AGENT_BUILD_DIR=/opt/guardrails-k8s-agent
-# WORKDIR ${AGENT_BUILD_DIR}
-# COPY ../kube_extension .
-
-# # Run go mod tidy
-# RUN \
-#   go mod tidy && \
-#   # Compile the Go application
-#   go build -o ./build/kube_extension.ext && \
-#   # Create an extensions.load file with the path to the kube_extension.ext
-#   echo "/usr/lib/osquery/extensions/kube_extension.ext" > ./build/extensions.load
-
-# Use Ubuntu 22.04 LTS (Jammy Jellyfish) as the base image
-FROM ubuntu:22.04
+# Use Ubuntu 24.04 LTS (Jammy Jellyfish) as the base image
+FROM ubuntu:24.04
 
 ARG \
   OSQUERY_VERSION \
   KUBECTL_VERSION \
+  AGENT_VERSION \
   TARGETARCH
+
+# Download the osquery extension tarball from the GitHub release
+ADD https://github.com/turbot/steampipe-plugin-mongodbatlas/releases/download/v${AGENT_VERSION}/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz /tmp/
+
+# Copy the start script from the build context to the container
+COPY ./start-script.sh /usr/local/bin/start-script.sh
 
 RUN \
   # Install wget, curl, vim, and dependencies for osquery
@@ -34,15 +27,18 @@ RUN \
   # Install kubectl with appropriate permissions
   install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
   # Remove the kubectl binary from the temporary location
-  rm kubectl
-
-# Copy the start script from the build context to the container
-COPY ./start-script.sh /usr/local/bin/start-script.sh
-
-# # Copy only the contents of the /opt/guardrails-k8s-agent/build/ directory from the builder stage
-# COPY --from=builder /opt/guardrails-k8s-agent/build/* /usr/lib/osquery/extensions/
-
-# Change the permissions of the start script to make it executable
-RUN chmod u+x /usr/local/bin/start-script.sh
+  rm kubectl && \
+  # Create the directory for the osquery extensions
+  mkdir -p /usr/lib/osquery/extensions/ && \
+  # Extract the osquery extension tarball
+  tar -xzf /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz -C /tmp && \
+  # Move the extension to the extensions directory
+  cp /tmp/kubernetes.ext /usr/lib/osquery/extensions/ && \
+  # Create an extensions.load file with the path to the kubernetes.ext
+  echo "/usr/lib/osquery/extensions/kube_extension.ext" > ./usr/lib/osquery/extensions/extensions.load && \
+  # Remove the tarball and the extracted extension
+  rm -rf /tmp/* && \
+  # Change the permissions of the start script to make it executable
+  chmod u+x /usr/local/bin/start-script.sh
 
 CMD ["/usr/local/bin/start-script.sh"]

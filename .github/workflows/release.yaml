@@ -3,8 +3,8 @@ name: Docker Image - Build and Release
 on:
   workflow_dispatch: 
     inputs:
-      release_version:
-        description: "Release version"
+      agent_version:
+        description: "Guardrails Agent Release version"
         required: true
         default: 0.0.\invalid
       
@@ -27,7 +27,7 @@ jobs:
         run: |
           echo "OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}"
           echo "KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}"
-          echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}"
+          echo "AGENT_VERSION=${{ github.event.inputs.agent_version }}"
     
       - name: Checkout Pipes repository
         uses: actions/checkout@v4
@@ -48,14 +48,14 @@ jobs:
       - name: Build and push GitHub Container Registry
         id: docker_build
         uses: docker/build-push-action@v5
-        with:
+        with:          #platforms: linux/amd64
           context: ./kubernetes/docker
           push: true
           platforms: linux/arm64,linux/amd64
-          #platforms: linux/amd64
           tags: |
-            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.release_version }}
+            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.agent_version }}
             ghcr.io/turbot/guardrails-agent-kubernetes:latest
           build-args: |
             OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
             KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}
+            AGENT_VERSION=${{ github.event.inputs.agent_version }}
