@@ -3,10 +3,15 @@ name: Docker Image - Build and Release
 on:
   workflow_dispatch: 
     inputs:
-      agent_version:
-        description: "Guardrails Agent Release version"
+      docker_version:
+        description: "Agent Docker version"
         required: true
-        default: 0.0.\invalid
+        default: 0.1./invalid
+
+      agent_version:
+        description: "Steampipe OSQuery Kubernetes extension version"
+        required: true
+        default: 0.28./invalid
       
       osquery_version:
         description: "OS Query version"
@@ -22,15 +27,31 @@ jobs:
   build_and_release:
     name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Versions manifest
         run: |
+          echo "DOCKER_VERSION=${{ github.event.inputs.docker_version }}"
+          echo "AGENT_VERSION=${{ github.event.inputs.agent_version }}"
           echo "OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}"
           echo "KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}"
-          echo "AGENT_VERSION=${{ github.event.inputs.agent_version }}"
     
       - name: Checkout Pipes repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check tag exists
+        run: |
+          TAG="v${{ github.event.inputs.docker_version }}"
+          if [ $(git tag -l "${TAG}") ]; then
+            echo "Tag ${TAG} exists"
+            exit 1
+          else
+            echo "Tag ${TAG} does not exist - proceeding with build"
+          fi
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -43,19 +64,30 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GH_ACCESS_TOKEN }}    
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push GitHub Container Registry
         id: docker_build
         uses: docker/build-push-action@v5
-        with:          #platforms: linux/amd64
+        with:
           context: ./kubernetes/docker
           push: true
           platforms: linux/arm64,linux/amd64
           tags: |
-            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.agent_version }}
+            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.docker_version }}
             ghcr.io/turbot/guardrails-agent-kubernetes:latest
           build-args: |
             OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
             KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}
             AGENT_VERSION=${{ github.event.inputs.agent_version }}
+
+      - name: Create Tag
+        run: |
+          git config --global user.name "Turbot Helm Builder"
+          git config --global user.email "admin@turbot.com"
+
+          git tag v${{ github.event.inputs.docker_version }} 
+          git push origin v${{ github.event.inputs.docker_version }}
+          
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

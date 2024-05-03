@@ -28,16 +28,17 @@ RUN \
   # Create the directory for the osquery extensions
   mkdir -p /usr/lib/osquery/extensions/ && \
   # Download the osquery extension tarball from the GitHub release
-  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-mongodbatlas/releases/download/v${AGENT_VERSION}/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz && \
+  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-kubernetes/releases/download/v${AGENT_VERSION}/steampipe_osquery_kubernetes.linux_${TARGETARCH}.tar.gz && \
   # Extract the osquery extension tarball
   tar -xzf /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz -C /tmp && \
   # Move the extension to the extensions directory
-  cp /tmp/kubernetes.ext /usr/lib/osquery/extensions/ && \
+  cp /tmp/steampipe_osquery_kubernetes.ext /usr/lib/osquery/extensions/ && \
   # Create an extensions.load file with the path to the kubernetes.ext
-  echo "/usr/lib/osquery/extensions/kube_extension.ext" > ./usr/lib/osquery/extensions/extensions.load && \
+  echo "/usr/lib/osquery/extensions/steampipe_osquery_kubernetes.ext" > ./usr/lib/osquery/extensions/extensions.load && \
   # Remove the tarball and the extracted extension
   rm -rf /tmp/* && \
   # Change the permissions of the start script to make it executable
   chmod u+x /usr/local/bin/start-script.sh
+
 
 CMD ["/usr/local/bin/start-script.sh"]
