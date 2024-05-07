@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 [![Docker Image - Build and Release](https://github.com/turbot/guardrails-agent-kubernetes/actions/workflows/release.yaml/badge.svg)](https://github.com/turbot/guardrails-agent-kubernetes/actions/workflows/release.yaml)
 
-This Guardrails agent is used to send Kubernetes cluster details to a [Turbot Guardrails](https://turbot.com/guardrails) workspace using osquery with the [guardrails-agent-kubernetes] (https://github.com/turbot/helm-charts/tree/main/charts/guardrails-agent-kubernetes) Helm chart.
+This Guardrails agent is used to send Kubernetes cluster details to a [Turbot Guardrails](https://turbot.com/guardrails) workspace using osquery with the [guardrails-agent-kubernetes](https://github.com/turbot/helm-charts/tree/main/charts/guardrails-agent-kubernetes) Helm chart.
 
 Please see [Guardrails Kubernetes Integration](https://turbot.com/guardrails/docs/integrations/kubernetes) for more information.
 
