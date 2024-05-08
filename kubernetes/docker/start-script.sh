@@ -3,6 +3,7 @@
 set -e
 
 CLUSTER_UID=$(kubectl get ns kube-system -o jsonpath='{.metadata.uid}')
+export GCP_GKE_CLUSTER_NAME=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name" -H "Metadata-Flavor: Google")
 
 osqueryd \
   --ephemeral \
