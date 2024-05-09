@@ -40,6 +40,6 @@ RUN \
   # Change the permissions of the start script to make it executable
   chmod u+x /usr/local/bin/start-script.sh && \
   # Create a non-root user `agent` with the UID 2000
-  adduser --system --no-create-home --disabled-password --ingroup root --uid 2000 agent
+  adduser --system --no-create-home --disabled-password --ingroup root --uid 2000 guardrails-agent
 
 CMD ["/usr/local/bin/start-script.sh"]
