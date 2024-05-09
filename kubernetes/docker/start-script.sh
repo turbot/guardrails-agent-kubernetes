@@ -11,7 +11,7 @@ osqueryd \
   --disable_database \
   --host_identifier=specified \
   --specified_identifier="k8s-uid:cluster:$CLUSTER_UID" \
-  --tls_hostname=$TLS_HOSTNAME \
+  --tls_hostname=$HOSTNAME \
   --config_plugin=tls \
   --config_refresh=30 \
   --config_tls_endpoint=/api/latest/osquery/config \
