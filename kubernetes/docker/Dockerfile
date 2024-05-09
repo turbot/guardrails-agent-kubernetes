@@ -12,7 +12,7 @@ COPY ./start-script.sh /usr/local/bin/start-script.sh
 
 RUN \
   # Install wget, curl, vim, and dependencies for osquery
-  apt-get update && apt-get install -y wget curl vim libunwind8 libgcrypt20 liblzma5 libgpg-error0 && \
+  apt-get update && apt-get install -y wget curl vim libunwind8 libgcrypt20 liblzma5 libgpg-error0 adduser && \
   # Clear the apt-get cache to reduce image size
   rm -rf /var/lib/apt/lists/* && \
   # Download the osquery package using the build argument
@@ -40,5 +40,6 @@ RUN \
   # Change the permissions of the start script to make it executable
   chmod u+x /usr/local/bin/start-script.sh
 
+RUN adduser --system --no-create-home --disabled-password --ingroup root --gid 2000 agent
 
 CMD ["/usr/local/bin/start-script.sh"]
