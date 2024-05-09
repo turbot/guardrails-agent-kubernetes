@@ -40,6 +40,6 @@ RUN \
   # Change the permissions of the start script to make it executable
   chmod u+x /usr/local/bin/start-script.sh
 
-RUN adduser --system --no-create-home --disabled-password --ingroup root --gid 2000 agent
+RUN adduser --system --no-create-home --disabled-password --ingroup root --uid 2000 agent
 
 CMD ["/usr/local/bin/start-script.sh"]
