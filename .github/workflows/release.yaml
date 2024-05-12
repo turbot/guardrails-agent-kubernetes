@@ -32,7 +32,7 @@ jobs:
           script: |
             const query = `
               query {
-                repository(owner: "${{ secrets.SOURCE_REPO_OWNER }}", name: "${{ secrets.SOURCE_REPO }}") {
+                repository(owner: "turbot", name: "steampipe-plugin-kubernetes") {
                   releases(first: 1, orderBy: {field: CREATED_AT, direction: DESC}) {
                     nodes {
                       tagName
