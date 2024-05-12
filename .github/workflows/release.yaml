@@ -1,28 +1,14 @@
-name: Docker Image - Build and Release
+name: Agent Docker Image - Build and Release
 
 on:
-  workflow_dispatch: 
-    inputs:
-      docker_version:
-        description: "Agent Docker version"
-        required: true
-        default: 0.1./invalid
+  push:
+    tags:
+      - "v*"
 
-      agent_version:
-        description: "Steampipe OSQuery Kubernetes extension version"
-        required: true
-        default: 0.28./invalid
-      
-      osquery_version:
-        description: "OS Query version"
-        required: true
-        default: 5.12.1
-
-      kubectl_version:
-        description: "Kubectl version"
-        required: true
-        default: 1.30.0
-
+env:
+  # Any version upgrade for the OSQuery or Kubectl should be done here
+  OSQUERY_VERSION: 5.12.1
+  KUBECTL_VERSION: 1.30.0
 jobs:
   build_and_release:
     name: Build and Release
@@ -31,13 +17,48 @@ jobs:
       contents: write
       packages: write
     steps:
-      - name: Versions manifest
+      - name: Extract tagged Agent Docker Image version
+        id: image-version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        
+      - name: Debug - tag extraction
+        run: echo "Using transformed tag ${{ steps.image-version.outputs.version }}"
+
+      - name: Query the latest Agent version
+        id: agent-version
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const query = `
+              query {
+                repository(owner: "${{ secrets.SOURCE_REPO_OWNER }}", name: "${{ secrets.SOURCE_REPO }}") {
+                  releases(first: 1, orderBy: {field: CREATED_AT, direction: DESC}) {
+                    nodes {
+                      tagName
+                    }
+                  }
+                }
+              }`;
+            // Extract the latest version from the tag
+            const result = await github.graphql(query);
+            let tagName = result.repository.releases.nodes[0].tagName;
+
+            if (tagName.startsWith('v')) {
+                tagName = tagName.substring(1);
+            }
+            core.setOutput("version", tagName);
+
+      - name: Debug - query result
+        run: echo "Using transformed tag ${{ steps.agent-version.outputs.version }}"
+
+      - name: Versions used for the build
         run: |
-          echo "DOCKER_VERSION=${{ github.event.inputs.docker_version }}"
-          echo "AGENT_VERSION=${{ github.event.inputs.agent_version }}"
-          echo "OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}"
-          echo "KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}"
-    
+          echo "DOCKER_VERSION=${{ steps.image-version.outputs.version }}"
+          echo "AGENT_VERSION=${{ steps.agent-version.outputs.version }}"
+          echo "OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}"
+          echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}"
+
       - name: Checkout Pipes repository
         uses: actions/checkout@v4
         with:
@@ -45,14 +66,14 @@ jobs:
 
       - name: Check tag exists
         run: |
-          TAG="v${{ github.event.inputs.docker_version }}"
+          TAG="v${{ steps.image-version.outputs.version }}"
           if [ $(git tag -l "${TAG}") ]; then
             echo "Tag ${TAG} exists"
             exit 1
           else
             echo "Tag ${TAG} does not exist - proceeding with build"
           fi
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -74,20 +95,19 @@ jobs:
           push: true
           platforms: linux/arm64,linux/amd64
           tags: |
-            ghcr.io/turbot/guardrails-agent-kubernetes:${{ github.event.inputs.docker_version }}
+            ghcr.io/turbot/guardrails-agent-kubernetes:${{ steps.image-version.outputs.version }}
             ghcr.io/turbot/guardrails-agent-kubernetes:latest
           build-args: |
-            OSQUERY_VERSION=${{ github.event.inputs.osquery_version }}
-            KUBECTL_VERSION=${{ github.event.inputs.kubectl_version }}
-            AGENT_VERSION=${{ github.event.inputs.agent_version }}
+            OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}
+            KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            AGENT_VERSION=${{ steps.agent-version.outputs.version }}
 
       - name: Create Tag
         run: |
           git config --global user.name "Turbot Helm Builder"
           git config --global user.email "admin@turbot.com"
 
-          git tag v${{ github.event.inputs.docker_version }} 
-          git push origin v${{ github.event.inputs.docker_version }}
-          
+          git tag v${{ steps.image-version.outputs.version }}
+          git push origin v${{ steps.image-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
