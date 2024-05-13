@@ -1,8 +1,3 @@
-## v0.1.1 [TBD]
+## v0.1.0 [2024-05-13]
 
-- Updated: Create user agent for OS Agent. ([#11](https://github.com/turbot/guardrails-agent-kubernetes/issues/11))
-- Updated: Remove TLS from Hostname and set agent name to `guardrails-agent`. ([#12](https://github.com/turbot/helm-charts/issues/12))
-
-## v0.1.0 [2024-05-07]
-
-- Initial version
+- Initial version that supports an image that will run the Kubernetes extension for osquery in a Kubernetes cluster.
