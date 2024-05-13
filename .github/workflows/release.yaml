@@ -14,7 +14,6 @@ jobs:
     name: Build and Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write
       packages: write
     steps:
       - name: Extract tagged Agent Docker Image version
@@ -92,12 +91,3 @@ jobs:
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
             AGENT_VERSION=${{ steps.agent-version.outputs.version }}
 
-      - name: Create Tag
-        run: |
-          git config --global user.name "Turbot Helm Builder"
-          git config --global user.email "admin@turbot.com"
-
-          git tag v${{ steps.image-version.outputs.version }}
-          git push origin v${{ steps.image-version.outputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
