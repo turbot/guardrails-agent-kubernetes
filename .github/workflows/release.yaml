@@ -1,4 +1,4 @@
-name: Agent Docker Image - Build and Release
+name: Build and Release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "v*"
 
 env:
-  # Any version upgrade for the OSQuery or Kubectl should be done here
+  # Any version upgrade for the osquery or kubectl should be done here
   OSQUERY_VERSION: 5.12.1
   KUBECTL_VERSION: 1.30.0
 jobs:
@@ -20,12 +20,12 @@ jobs:
       - name: Extract tagged Agent Docker Image version
         id: image-version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        
+
       - name: Debug - tag extraction
         run: echo "Using transformed tag ${{ steps.image-version.outputs.version }}"
 
-      - name: Query the latest Agent version
-        id: agent-version
+      - name: Query the latest extension version
+        id: extension-version
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -50,12 +50,12 @@ jobs:
             core.setOutput("version", tagName);
 
       - name: Debug - query result
-        run: echo "Using transformed tag ${{ steps.agent-version.outputs.version }}"
+        run: echo "Using transformed tag ${{ steps.extension-version.outputs.version }}"
 
       - name: Versions used for the build
         run: |
           echo "DOCKER_VERSION=${{ steps.image-version.outputs.version }}"
-          echo "AGENT_VERSION=${{ steps.agent-version.outputs.version }}"
+          echo "EXTENSION_VERSION=${{ steps.extension-version.outputs.version }}"
           echo "OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}"
           echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}"
 
@@ -90,5 +90,4 @@ jobs:
           build-args: |
             OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
-            AGENT_VERSION=${{ steps.agent-version.outputs.version }}
-
+            EXTENSION_VERSION=${{ steps.extension-version.outputs.version }}

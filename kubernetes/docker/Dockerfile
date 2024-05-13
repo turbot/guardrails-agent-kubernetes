@@ -4,7 +4,7 @@ FROM ubuntu:24.04
 ARG \
   OSQUERY_VERSION \
   KUBECTL_VERSION \
-  AGENT_VERSION \
+  EXTENSION_VERSION \
   TARGETARCH
 
 # Copy the start script from the build context to the container
@@ -28,7 +28,7 @@ RUN \
   # Create the directory for the osquery extensions
   mkdir -p /usr/lib/osquery/extensions/ && \
   # Download the osquery extension tarball from the GitHub release
-  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-kubernetes/releases/download/v${AGENT_VERSION}/steampipe_osquery_kubernetes.linux_${TARGETARCH}.tar.gz && \
+  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-kubernetes/releases/download/v${EXTENSION_VERSION}/steampipe_osquery_kubernetes.linux_${TARGETARCH}.tar.gz && \
   # Extract the osquery extension tarball
   tar -xzf /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz -C /tmp && \
   # Move the extension to the extensions directory

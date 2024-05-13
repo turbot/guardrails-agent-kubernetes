@@ -16,14 +16,14 @@ docker build ./kubernetes/docker/ \
     -t guardrails-agent-kubernetes:latest \
     --build-arg OSQUERY_VERSION=5.12.1 \
     --build-arg KUBECTL_VERSION=1.30.0 \
-    --build-arg AGENT_VERSION=0.28.0
+    --build-arg EXTENSION_VERSION=0.28.0
 ```
 
-- OSQUERY_VERSION: This argument specifies the version of osquery to be installed in the Docker image. Osquery is an operating system instrumentation framework that makes operating system analytics and monitoring easier. In your Dockerfile, this version is used to download the specific osquery package from the official osquery repository.
+- OSQUERY_VERSION: This argument specifies the version of osquery to be installed in the Docker image. osquery is an operating system instrumentation framework that makes operating system analytics and monitoring easier. In your Dockerfile, this version is used to download the specific osquery package from the official osquery repository.
 
 - KUBECTL_VERSION: This argument specifies the version of kubectl to be installed in the Docker image. Kubectl is a command line tool for controlling Kubernetes clusters. In your Dockerfile, this version is used to download the specific kubectl binary from the official Kubernetes release page.
 
-- AGENT_VERSION: This argument specifies the version of the osquery extension for Kubernetes to be installed in the Docker image. This extension allows osquery to interact with Kubernetes. In your Dockerfile, this version is used to download the specific osquery extension tarball from the GitHub release page of the steampipe-plugin-kubernetes project.
+- EXTENSION_VERSION: This argument specifies the version of the osquery extension for Kubernetes to be installed in the Docker image. This extension allows osquery to interact with Kubernetes. In your Dockerfile, this version is used to download the specific osquery extension tarball from the [Steampipe Kubernetes plugin releases](https://github.com/turbot/steampipe-plugin-kubernetes/releases).
 
 ## Open Source & Contributing
 
