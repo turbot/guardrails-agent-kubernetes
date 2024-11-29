@@ -11,12 +11,12 @@ ARG \
 COPY ./start-script.sh /usr/local/bin/start-script.sh
 
 RUN \
-  # Install wget, curl, vim, and dependencies for osquery
-  apt-get update && apt-get install -y wget curl vim libunwind8 libgcrypt20 liblzma5 libgpg-error0 adduser && \
+  # Install curl and adduser
+  apt-get update && apt-get install -y curl adduser && \
   # Clear the apt-get cache to reduce image size
   rm -rf /var/lib/apt/lists/* && \
   # Download the osquery package using the build argument
-  wget https://pkg.osquery.io/deb/osquery_${OSQUERY_VERSION}-1.linux_${TARGETARCH}.deb -O /tmp/osquery.deb && \
+  curl -L -o /tmp/osquery.deb https://pkg.osquery.io/deb/osquery_${OSQUERY_VERSION}-1.linux_${TARGETARCH}.deb && \
   # Install the osquery package
   dpkg -i /tmp/osquery.deb && \
   # Download the specific version of kubectl
@@ -28,7 +28,7 @@ RUN \
   # Create the directory for the osquery extensions
   mkdir -p /usr/lib/osquery/extensions/ && \
   # Download the osquery extension tarball from the GitHub release
-  wget -O /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-kubernetes/releases/download/v${EXTENSION_VERSION}/steampipe_osquery_kubernetes.linux_${TARGETARCH}.tar.gz && \
+  curl -L -o /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz https://github.com/turbot/steampipe-plugin-kubernetes/releases/download/v${EXTENSION_VERSION}/steampipe_osquery_kubernetes.linux_${TARGETARCH}.tar.gz && \
   # Extract the osquery extension tarball
   tar -xzf /tmp/osquery_extension_kubernetes.linux_${TARGETARCH}.tar.gz -C /tmp && \
   # Move the extension to the extensions directory
