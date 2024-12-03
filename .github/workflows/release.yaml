@@ -6,9 +6,11 @@ on:
       - "v*"
 
 env:
-  # Any version upgrade for the osquery or kubectl should be done here
+  # Any version upgrades should be done here
   OSQUERY_VERSION: 5.14.1
   KUBECTL_VERSION: 1.31.3
+  EXTENSION_VERSION: 1.2.0
+
 jobs:
   build_and_release:
     name: Build and Release
@@ -24,42 +26,14 @@ jobs:
       - name: Debug - tag extraction
         run: echo "Using transformed tag ${{ steps.image-version.outputs.version }}"
 
-      - name: Query the latest extension version
-        id: extension-version
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const query = `
-              query {
-                repository(owner: "turbot", name: "steampipe-plugin-kubernetes") {
-                  releases(first: 1, orderBy: {field: CREATED_AT, direction: DESC}) {
-                    nodes {
-                      tagName
-                    }
-                  }
-                }
-              }`;
-            // Extract the latest version from the tag
-            const result = await github.graphql(query);
-            let tagName = result.repository.releases.nodes[0].tagName;
-
-            if (tagName.startsWith('v')) {
-                tagName = tagName.substring(1);
-            }
-            core.setOutput("version", tagName);
-
-      - name: Debug - query result
-        run: echo "Using transformed tag ${{ steps.extension-version.outputs.version }}"
-
       - name: Versions used for the build
         run: |
           echo "DOCKER_VERSION=${{ steps.image-version.outputs.version }}"
-          echo "EXTENSION_VERSION=${{ steps.extension-version.outputs.version }}"
           echo "OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}"
           echo "KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}"
+          echo "EXTENSION_VERSION=${{ env.EXTENSION_VERSION }}"
 
-      - name: Checkout Pipes repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -90,4 +64,4 @@ jobs:
           build-args: |
             OSQUERY_VERSION=${{ env.OSQUERY_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
-            EXTENSION_VERSION=${{ steps.extension-version.outputs.version }}
+            EXTENSION_VERSION=${{ env.EXTENSION_VERSION }}

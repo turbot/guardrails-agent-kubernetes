@@ -16,7 +16,7 @@ docker build ./kubernetes/docker/ \
     -t guardrails-agent-kubernetes:latest \
     --build-arg OSQUERY_VERSION=5.14.1 \
     --build-arg KUBECTL_VERSION=1.31.3 \
-    --build-arg EXTENSION_VERSION=1.1.0
+    --build-arg EXTENSION_VERSION=1.2.0
 ```
 
 - OSQUERY_VERSION: This argument specifies the version of osquery to be installed in the Docker image. osquery is an operating system instrumentation framework that makes operating system analytics and monitoring easier. In your Dockerfile, this version is used to download the specific osquery package from the official osquery repository.
