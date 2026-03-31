@@ -1,3 +1,7 @@
+## v0.4.0 [TDB]
+
+- Updated move OSQuery Extensions Socket to `/run/osquery/`. ([#16](https://github.com/turbot/guardrails-agent-kubernetes/issues/16))
+
 ## v0.3.0 [2024-12-03]
 
 _Enhancements_

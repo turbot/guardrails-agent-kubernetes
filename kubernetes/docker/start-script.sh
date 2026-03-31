@@ -20,4 +20,5 @@ osqueryd \
   --logger_tls_endpoint "/api/latest/osquery/logger" \
   --logger_plugin=tls \
   --logger_event_type=false \
+  --extensions_socket=/run/osquery/osquery.em \
   --extensions_autoload=/usr/lib/osquery/extensions/extensions.load
